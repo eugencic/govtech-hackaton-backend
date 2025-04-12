@@ -1,0 +1,34 @@
+version: '3.8'
+
+services:
+  dcr-processing-postgres:
+    image: postgres:14-alpine
+    container_name: processing-postgres
+    ports:
+      - 9002:5432
+    volumes:
+      - ./configs/postgres_data:/var/lib/postgresql/data
+    restart: always
+    environment:
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=database
+    networks:
+      - mynetwork
+  dcr-processing-server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: processing-server
+    depends_on:
+      - dcr-processing-postgres
+    restart: always
+    ports:
+      - "9001:8080"
+    networks:
+      - mynetwork
+volumes:
+  postgres_data:
+networks:
+  mynetwork:
+    driver: bridge
